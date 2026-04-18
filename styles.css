@@ -386,9 +386,16 @@ header.head .meta b { color: var(--ink); }
   header.head h1 { font-size: 32px; }
   header.head { flex-direction: column; align-items: flex-start; gap: 8px; }
   header.head .meta { text-align: left; }
+  .vcard .vhead { flex-direction: column; align-items: flex-start; gap: 4px; }
   .splitwrap { grid-template-columns: 1fr; }
   .splitwrap .mapwrap { border-right: none; border-bottom: 1.5px dashed var(--line); }
-  .tweaks { width: calc(100vw - 32px); right: 16px; bottom: 16px; }
+  .splitwrap .list-pane { max-height: 300px; }
+  .tweaks { width: calc(100vw - 32px); right: 16px; bottom: 16px; left: 16px; }
   .gallery { grid-template-columns: repeat(2, 1fr); }
   .tab-tweaks { margin-left: 0; }
+  .sticky { display: none; }
+  .zoom-ctrl button { width: 36px; height: 36px; font-size: 20px; }
+  .modal-head h2 { font-size: 26px; }
+  .modal-body { padding: 12px 14px 16px; }
+  .modal-head { padding: 14px 14px 10px; }
 }

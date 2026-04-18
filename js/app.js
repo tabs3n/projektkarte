@@ -137,13 +137,18 @@
     return p;
   }
 
+  const isMobile = () => window.innerWidth < 600;
+
   function renderMap(containerSel, opts) {
     const container = document.querySelector(containerSel);
     if (!container) return;
     container.innerHTML = '';
 
-    const W = container.clientWidth || 900;
-    const H = opts.height || Math.round(W * 0.52);
+    const W = Math.round(container.getBoundingClientRect().width) || window.innerWidth || 360;
+    const mobile = isMobile();
+    const aspectH = mobile ? 0.7 : 0.52;
+    const maxH = mobile ? Math.round(W * aspectH) : (opts.height || Math.round(W * aspectH));
+    const H = maxH;
     const svg = d3.select(container).append('svg')
       .attr('viewBox', `0 0 ${W} ${H}`)
       .attr('preserveAspectRatio', 'xMidYMid meet');
@@ -182,7 +187,7 @@
           });
       }
 
-      if (state.labels !== 'none') {
+      if (state.labels !== 'none' && !isMobile()) {
         const labelIds = state.labels === 'all'
           ? Object.keys(CENTROIDS)
           : DATA.map(d => d.iso);
@@ -224,10 +229,17 @@
       }
 
       if (opts.zoom) {
-        const zoom = d3.zoom().scaleExtent([1, 8]).on('zoom', evt => {
-          g.attr('transform', evt.transform);
-        });
+        const zoom = d3.zoom().scaleExtent([1, 8])
+          .filter(evt => {
+            // On mobile: allow pinch-zoom but not single-finger drag (let page scroll)
+            if (evt.type === 'touchstart') return evt.touches.length >= 2;
+            return !evt.button;
+          })
+          .on('zoom', evt => {
+            g.attr('transform', evt.transform);
+          });
         svg.call(zoom);
+        svg.style('touch-action', 'pan-y');
         const zoomEl = document.createElement('div');
         zoomEl.className = 'zoom-ctrl';
         zoomEl.innerHTML = `<button data-z="in">+</button><button data-z="out">−</button><button data-z="reset">⟲</button>`;
