@@ -202,21 +202,23 @@
         });
       }
 
+      // Markers rendered last so they sit on top; reference kept for zoom rescaling
+      let markersG = null;
+      const MARKER_R = 9;
       if (opts.markers) {
-        const markers = g.append('g').attr('class', 'markers');
+        markersG = g.append('g').attr('class', 'markers');
         DATA.forEach(c => {
           const coord = CENTROIDS[c.iso]; if (!coord) return;
           const [x, y] = projection(coord);
-          const r = 9;
-          markers.append('circle')
+          markersG.append('circle')
             .attr('class', 'marker-badge')
-            .attr('cx', x).attr('cy', y).attr('r', r);
-          markers.append('text')
+            .attr('cx', x).attr('cy', y).attr('r', MARKER_R);
+          markersG.append('text')
             .attr('class', 'marker-badge-text')
             .attr('x', x).attr('y', y + 3)
             .text(c.projects.length);
-          markers.append('circle')
-            .attr('cx', x).attr('cy', y).attr('r', r + 2)
+          markersG.append('circle')
+            .attr('cx', x).attr('cy', y).attr('r', MARKER_R + 2)
             .attr('fill', 'transparent')
             .style('cursor', 'pointer')
             .on('mousemove', evt => {
@@ -231,12 +233,23 @@
       if (opts.zoom) {
         const zoom = d3.zoom().scaleExtent([1, 8])
           .filter(evt => {
-            // On mobile: allow pinch-zoom but not single-finger drag (let page scroll)
             if (evt.type === 'touchstart') return evt.touches.length >= 2;
             return !evt.button;
           })
           .on('zoom', evt => {
             g.attr('transform', evt.transform);
+            // Keep markers at constant screen size
+            if (markersG) {
+              const k = evt.transform.k;
+              markersG.selectAll('circle.marker-badge')
+                .attr('r', MARKER_R / k)
+                .attr('stroke-width', 1 / k);
+              markersG.selectAll('text.marker-badge-text')
+                .attr('font-size', 9 / k)
+                .attr('dy', (3 / k) - 3); // compensate y offset
+              markersG.selectAll('circle:last-child')
+                .attr('r', (MARKER_R + 2) / k);
+            }
           });
         svg.call(zoom);
         svg.style('touch-action', 'pan-y');
