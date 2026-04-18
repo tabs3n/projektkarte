@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: projektkarte
+    runtime: static
+    staticPublishPath: .
+    buildCommand: ""
+    pullRequestPreviewsEnabled: true

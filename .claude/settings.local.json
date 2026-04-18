@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(zcat \"/Users/tobi/.claude/projects/-Users-tobi-test/3d9c476e-1157-45a5-899f-caf4f14c9266/tool-results/webfetch-1776504482759-1io86r.bin\")",
+      "Bash(xxd \"/Users/tobi/.claude/projects/-Users-tobi-test/3d9c476e-1157-45a5-899f-caf4f14c9266/tool-results/webfetch-1776504482759-1io86r.bin\")",
+      "Bash(cp \"/Users/tobi/.claude/projects/-Users-tobi-test/3d9c476e-1157-45a5-899f-caf4f14c9266/tool-results/webfetch-1776504482759-1io86r.bin\" /tmp/design.gz)",
+      "Bash(gunzip /tmp/design.gz)",
+      "Read(//tmp/**)",
+      "Read(//private/tmp/**)",
+      "Bash(tar xf *)",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ]
+  }
+}

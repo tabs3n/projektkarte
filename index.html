@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projektkarte</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
+<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+</head>
+<body>
+
+<div class="page">
+  <header class="head">
+    <div>
+      <h1>Projektkarte</h1>
+    </div>
+    <div class="meta">
+      <div><b>34</b> Länder · <b>47</b> Projekte</div>
+      <div>4 Varianten zur Auswahl</div>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" data-v="v1"><span class="num">01</span> Atlas Classic</button>
+    <button class="tab" data-v="v2"><span class="num">02</span> Split View</button>
+    <button class="tab" data-v="v3"><span class="num">03</span> Dot Matrix</button>
+    <button class="tab" data-v="v4"><span class="num">04</span> Markers &amp; Badges</button>
+    <button class="tab tab-tweaks" id="tweaks-toggle" title="Tweaks">⚙ Tweaks</button>
+  </div>
+
+  <!-- VARIANT 1 -->
+  <section class="variant" data-v="v1">
+    <div class="vcard">
+      <div class="vhead">
+        <div><span class="name">V1 · Atlas Classic</span></div>
+        <div class="desc">Länder mit Projekten sind eingefärbt. Klick öffnet ein zentrales Modal mit allen Projekten des Landes.</div>
+      </div>
+      <div class="mapwrap" id="v1-map">
+        <div class="loading">Karte lädt…</div>
+      </div>
+      <div class="sticky">Use-case: Referenzen-Unterseite, Desktop primär. Hover = Tooltip, Klick = Modal.</div>
+    </div>
+  </section>
+
+  <!-- VARIANT 2 -->
+  <section class="variant" data-v="v2">
+    <div class="vcard">
+      <div class="vhead">
+        <div><span class="name">V2 · Split View</span></div>
+        <div class="desc">Karte links, durchsuchbare Länderliste rechts. Beide Seiten sind synchronisiert.</div>
+      </div>
+      <div class="splitwrap">
+        <div class="mapwrap" id="v2-map">
+          <div class="loading">Karte lädt…</div>
+        </div>
+        <div class="list-pane" id="v2-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VARIANT 3 -->
+  <section class="variant" data-v="v3">
+    <div class="vcard">
+      <div class="vhead">
+        <div><span class="name">V3 · Dot Matrix</span></div>
+        <div class="desc">Stilisiertes Punkt-Raster. Aktive Länder als farbige Dots. Klick öffnet ein Seiten-Drawer.</div>
+      </div>
+      <div class="mapwrap" id="v3-map">
+        <div class="loading">Karte wird aufgebaut…</div>
+      </div>
+      <div class="sticky" style="transform:rotate(-1.5deg);right:auto;left:14px;top:auto;bottom:14px;">Experimenteller Look — gut für moderne Brand-Räume.</div>
+    </div>
+  </section>
+
+  <!-- VARIANT 4 -->
+  <section class="variant" data-v="v4">
+    <div class="vcard">
+      <div class="vhead">
+        <div><span class="name">V4 · Markers &amp; Badges</span></div>
+        <div class="desc">Dezente Länderfärbung + Badges mit Projekt-Anzahl. Zoom &amp; Pan aktiv. Klick auf Badge öffnet Modal.</div>
+      </div>
+      <div class="mapwrap" id="v4-map">
+        <div class="loading">Karte lädt…</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal" id="modal-inner"></div>
+</div>
+
+<!-- Drawer (v3) -->
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+<aside class="drawer" id="drawer"></aside>
+
+<!-- Tweaks panel -->
+<div class="tweaks" id="tweaks">
+  <h4>Tweaks</h4>
+  <div class="tweak-row">
+    <label>Akzentfarbe</label>
+    <input type="color" id="tweak-accent-input" value="#ff5722">
+    <div class="pills" id="tweak-accent-swatches" style="margin-top:6px;">
+      <button class="pill" data-v="#ff5722" title="Orange" style="background:#ff5722;color:white;border-color:#ff5722">·</button>
+      <button class="pill" data-v="#2563eb" title="Blau" style="background:#2563eb;color:white;border-color:#2563eb">·</button>
+      <button class="pill" data-v="#059669" title="Grün" style="background:#059669;color:white;border-color:#059669">·</button>
+      <button class="pill" data-v="#d946ef" title="Magenta" style="background:#d946ef;color:white;border-color:#d946ef">·</button>
+      <button class="pill" data-v="#1a1a1a" title="Schwarz" style="background:#1a1a1a;color:white;border-color:#1a1a1a">·</button>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <label>Label-Dichte</label>
+    <div class="pills" id="tweak-labels">
+      <button class="pill" data-v="none">Keine</button>
+      <button class="pill" data-v="active">Nur aktive</button>
+      <button class="pill" data-v="all">Alle</button>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <label>Projektion</label>
+    <div class="pills" id="tweak-proj">
+      <button class="pill" data-v="equalEarth">Equal Earth</button>
+      <button class="pill" data-v="mercator">Mercator</button>
+      <button class="pill" data-v="naturalEarth">Natural Earth</button>
+    </div>
+  </div>
+</div>
+
+<script src="data/projects.js"></script>
+<script src="data/placeholders.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
